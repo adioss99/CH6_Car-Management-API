@@ -4,12 +4,24 @@ const deleteEngine = async (req, res, params) => {
   await Cars.destroy({ where: { id: req.params.id }, force: params });
 };
 
+const deletedBy = async (req, res, auth) => {
+  console.log('params', auth);
+  await Cars.update(
+    { deletedBy: auth },
+    {
+      where: {
+        id: req.params.id,
+      },
+    }
+  );
+};
+
 export const createCar = async (req, res) => {
   try {
     const { car_name, rent_price, car_type } = req.body;
     const createdBy = req.auth.userId;
     const newCar = await Cars.create({ car_name: car_name, rent_price: rent_price, car_type: car_type, createdBy: createdBy });
-    res.json({ msg: 'Create car success', newCar });
+    res.json({ msg: 'Created car successfully', newCar });
   } catch (error) {
     console.log(error);
     res.json('Something went wrong');
@@ -38,7 +50,7 @@ export const getCar = async (req, res, params) => {
 export const getCarbyId = async (req, res) => {
   try {
     const cars = await Cars.findOne({
-      attributes: ['id', 'car_name', 'rent_price', 'car_type','createdAt','updatedAt','deletedAt'],
+      attributes: ['id', 'car_name', 'rent_price', 'car_type', 'createdAt', 'updatedAt', 'deletedAt'],
       where: { id: req.params.id },
       include: [
         { model: Users, as: 'created_by', attributes: ['id', 'name', 'email', 'roles'] },
@@ -65,7 +77,7 @@ export const updateCar = async (req, res) => {
         },
       }
     );
-    res.json({ msg: 'Update car success' });
+    res.json({ msg: 'Updated car successfully' });
   } catch (error) {
     console.log(error);
     res.json('Something went wrong');
@@ -74,8 +86,10 @@ export const updateCar = async (req, res) => {
 
 export const deleteCar = async (req, res) => {
   try {
+    const auth = req.auth.userId;
+    // deletedBy(req, res, auth); <= error (auth tetap null)
     await Cars.update(
-      { deletedBy: req.auth.userId },
+      { deletedBy: auth },
       {
         where: {
           id: req.params.id,
@@ -83,7 +97,7 @@ export const deleteCar = async (req, res) => {
       }
     );
     deleteEngine(req, res, false);
-    res.json({ msg: 'Delete car success' });
+    res.json({ msg: 'Deleted car successfully' });
   } catch (error) {
     console.log(error);
     res.json('Something went wrong');
@@ -93,12 +107,13 @@ export const deleteCar = async (req, res) => {
 // super admin
 export const restoreDelete = async (req, res) => {
   try {
-    Cars.restore({
+    await Cars.restore({
       where: {
         id: req.params.id,
       },
     });
-    res.json({ msg: 'Restored soft delete data' });
+    deletedBy(req, res, null);
+    res.json({ msg: 'Restored deleted data successfully' });
   } catch (error) {
     console.log(error);
     res.json('Something went wrong');
@@ -117,7 +132,7 @@ export const getAllCar = async (req, res) => {
 export const hardDelete = async (req, res) => {
   try {
     deleteEngine(req, res, true);
-    res.json({ msg: 'Hard delete success' });
+    res.json({ msg: 'Data hard deleted successfully' });
   } catch (error) {
     console.log(error);
     res.json('Something went wrong');

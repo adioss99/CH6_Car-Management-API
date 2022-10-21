@@ -12,11 +12,11 @@ export const verifyToken = (req, res, next) => {
 };
 
 export const isSuperadmin = (req, res, next) => {
-  if (req.auth.roles !== 'superadmin') return res.sendStatus(403);
+  if (req.auth.roles !== 'superadmin') return res.status(403).send('You are not superadmin');
   next();
 };
 
 export const isMember = (req, res, next) => {
-  if (req.auth.roles === 'member') return res.sendStatus(403);
+  if (req.auth.roles === 'member') return res.status(403).send('Members not allowed to do this action');
   next();
 };

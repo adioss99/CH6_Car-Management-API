@@ -22,7 +22,7 @@ const createUserEngine = async (req, res, params) => {
         res.json({ msg: 'Email is already used' });
         return false;
       }
-      res.json({ msg: 'User created', user });
+      res.json({ msg: 'User created successfully', user });
     });
   } catch (error) {
     console.log(error);
@@ -81,7 +81,7 @@ export const Login = async (req, res) => {
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000,
     });
-    res.json({ msg: 'login success', accessToken, refreshToken });
+    res.json({ msg: 'login success', accessToken});
   } catch (err) {
     console.log(err);
     res.status(400).json({ msg: 'Wrong Email or Password' });
@@ -94,7 +94,7 @@ export const whoAmI = async (req, res) => {
 
 export const Logout = async (req, res) => {
   try {
-    const refreshToken = req.body.refreshToken === undefined ? req.cookies.refreshToken : req.body.refreshToken;
+    const refreshToken = req.body.refreshToken === undefined || req.body.refreshToken === null ? req.cookies.refreshToken : req.body.refreshToken;
     if (!refreshToken) return res.status(204).send('null');
     const user = await Users.findAll({
       where: {

@@ -13,9 +13,9 @@ module.exports = {
       'Users',
       [
         {
-          name: 'Sasmito Adi',
-          email: 'sasss@gmail.com',
-          password: await bcrypt.hash('adisas', 10),
+          name: 'adi',
+          email: 'adi@gmail.com',
+          password: await bcrypt.hash('123456', 10),
           roles: 'superadmin',
         },
       ],

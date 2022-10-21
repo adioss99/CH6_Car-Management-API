@@ -3,6 +3,7 @@ import { getUsers, Register, RegisterAdmin, Login, Logout, whoAmI } from '../con
 import { verifyToken, isSuperadmin, isMember } from '../middleware/authChecker.js';
 import { refreshToken } from '../controller/refreshToken.js';
 import { createCar, deleteCar, getAllCar, getCar, getCarbyId, hardDelete, restoreDelete, updateCar } from '../controller/carController.js';
+import { countCar, countDeletedCar } from '../middleware/carCheck.js';
 
 const router = express.Router();
 const prefix = '/v1/api';
@@ -18,12 +19,12 @@ router.delete(prefix + '/logout', Logout);
 
 router.post(prefix + '/create-car', verifyToken, isMember, createCar);
 router.get(prefix + '/get-car', verifyToken, isMember, getCar);
-router.get(prefix + '/get-car/:id', verifyToken, isMember, getCarbyId);
-router.put(prefix + '/update-car/:id', verifyToken, isMember, updateCar);
-router.delete(prefix + '/delete-car/:id', verifyToken, isMember, deleteCar);
+router.get(prefix + '/get-car/:id', verifyToken, isMember, countCar, getCarbyId);
+router.put(prefix + '/update-car/:id', verifyToken, isMember, countCar, updateCar);
+router.delete(prefix + '/delete-car/:id', verifyToken, isMember, countCar, deleteCar);
 
 router.get(prefix + '/get-car-all', verifyToken, isSuperadmin, getAllCar);
-router.delete(prefix + '/delete-car-force/:id', verifyToken, isSuperadmin, hardDelete);
-router.post(prefix + '/delete-car-restore/:id', verifyToken, isSuperadmin, restoreDelete);
+router.delete(prefix + '/delete-car-force/:id', verifyToken, isSuperadmin, countDeletedCar, hardDelete);
+router.post(prefix + '/delete-car-restore/:id', verifyToken, isSuperadmin, countDeletedCar, restoreDelete);
 
 export default router;
